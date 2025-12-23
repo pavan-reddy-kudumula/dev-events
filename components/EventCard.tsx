@@ -11,9 +11,11 @@ interface Props {
 }
 
 const EventCard = ({title, image, slug, location, date, time}: Props) => {
-  return (
-    <Link href={`/events/${slug}`} id="event-card">
-        <Image src={image} alt="title" width={410} height={300} className="poster"/>
+    return (
+        <Link href={`/events/${slug}`} id="event-card">
+        {image && image.trim() !== "" ? (
+                <Image src={image} alt={title} width={410} height={300} className="poster"/>
+        ) : null}
 
         <div className="flex flex-row gap-2">
             <Image src="/icons/pin.svg" alt="location" width={14} height={14}/>
