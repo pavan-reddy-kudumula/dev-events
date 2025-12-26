@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import BookEvent from "@/components/BookEvent";
-import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
+import { getSimilarEventsBySlug, getEventBySlug } from "@/lib/actions/event.actions";
+import { getBookingCountByEventId } from "@/lib/actions/booking.actions";
 import { IEvent } from "@/database";
 import EventCard from "@/components/EventCard";
 
@@ -34,13 +35,14 @@ const EventTags = ({tags}: {tags: string[]}) => (
 );
 
 const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => {
-    const {slug} = await params;
-    const eventResponse = await fetch(`${BASE_URL}/api/events/${slug}`);
-    const { event } = await eventResponse.json();
+    const {slug} =  await params;
+    const event = await getEventBySlug(slug);
+    console.log(event);
 
     if (!event) return notFound();
 
-    const bookings = 10;
+    // const bookings = await getBookingCountByEventId(event._id);
+    const bookings = 0;
 
     const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
@@ -95,17 +97,21 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                         )}
                     </div>
 
-                    <BookEvent />
+                    <BookEvent eventId={event._id} />
                 </aside>
             </div>
 
             <div className="flex w-full flex-col gap-4 pt-20">
                 <h2>Similar Events</h2>
+                {!similarEvents || similarEvents.length === 0 ? ( 
+                    <p>No similar events found.</p>
+                ) : (
                 <div className="events">
                         {similarEvents.length > 0 && similarEvents.map((similarEvent: IEvent) => (
                             <EventCard key={similarEvent.slug} {...similarEvent} />
                         ))}
                 </div>
+                )}
             </div>
         </section>
     )

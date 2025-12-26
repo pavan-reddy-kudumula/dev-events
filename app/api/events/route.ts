@@ -2,6 +2,7 @@ import connectDB from "@/lib/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import Event from "@/database/event.model";
 import { v2 as cloudinary } from "cloudinary";
+import { revalidateTag } from "next/cache";
 
 export async function POST(req: NextRequest) {
     try {
@@ -52,6 +53,8 @@ export async function POST(req: NextRequest) {
             tags: tags,
             agenda: agenda
         });
+
+        revalidateTag("events-list", "max");
 
         return NextResponse.json(
             {
