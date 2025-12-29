@@ -6,7 +6,6 @@ import { getBookingCountByEventId } from "@/lib/actions/booking.actions";
 import { IEvent } from "@/database";
 import EventCard from "@/components/EventCard";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const EventDetailsItem = ({icon, alt, label}: { icon: string, alt: string, label: string}) => (
     <div className="flex-row-gap-2 items-center">
@@ -37,12 +36,10 @@ const EventTags = ({tags}: {tags: string[]}) => (
 const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => {
     const {slug} =  await params;
     const event = await getEventBySlug(slug);
-    console.log(event);
 
     if (!event) return notFound();
 
-    // const bookings = await getBookingCountByEventId(event._id);
-    const bookings = 0;
+    const bookings = await getBookingCountByEventId(event._id);
 
     const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 

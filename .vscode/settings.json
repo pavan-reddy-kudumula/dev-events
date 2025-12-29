@@ -1,0 +1,13 @@
+{
+  // Disable built-in CSS validation (warnings) across the workspace
+  "css.validate": false,
+  // If you prefer keeping validation but silencing common Tailwind-specific complaints:
+  // "css.lint.unknownAtRules": "ignore",
+  // "css.lint.unknownProperties": "ignore",
+  // "css.lint.vendorPrefix": "ignore"
+
+  // Optional: ensure the file is treated as CSS
+  "files.associations": {
+    "app/globals.css": "css"
+  }
+}

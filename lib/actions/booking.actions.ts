@@ -3,10 +3,22 @@
 import connectDB from "@/lib/mongodb";
 import Booking from "@/database/booking.model";
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export const createBooking = async (eventId: string, email: string) => {
+export const createBooking = async (eventId: string) => {
     try {
+        const session = await getServerSession(authOptions);
+
+        if (!session || !session.user?.email) {
+            return {
+                success: false,
+                error: "You must be signed in to book this event",
+            };
+        }
+
         await connectDB();
+        const email = session.user.email;
         
         // Check if booking already exists
         const existingBooking = await Booking.findOne({ eventId, email });
