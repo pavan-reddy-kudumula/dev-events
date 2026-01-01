@@ -1,10 +1,14 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import BookEvent from "@/components/BookEvent";
+import DeleteEvent from "@/components/DeleteEvent";
 import { getSimilarEventsBySlug, getEventBySlug } from "@/lib/actions/event.actions";
 import { getBookingCountByEventId } from "@/lib/actions/booking.actions";
-import { IEvent } from "@/database";
+import { IEventClient } from "@/types/event";
 import EventCard from "@/components/EventCard";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 
 const EventDetailsItem = ({icon, alt, label}: { icon: string, alt: string, label: string}) => (
@@ -39,15 +43,28 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
 
     if (!event) return notFound();
 
+    const session = await getServerSession(authOptions);
+    const isCreator = session?.user?.email === event.creatorEmail;
+
     const bookings = await getBookingCountByEventId(event._id);
 
-    const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
+    const similarEvents: IEventClient[] = await getSimilarEventsBySlug(slug);
 
     return (
         <section id="event">
             <div className="header">
-                <h1>Event Description</h1>
-                <p>{event.description}</p>
+                <h1>{event.title}</h1>
+                {isCreator && (
+                    <div className="flex gap-3">
+                        <Link 
+                            href={`/edit-event/${event.slug}`}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                        >
+                            Edit Event
+                        </Link>
+                        <DeleteEvent eventId={event._id} />
+                    </div>
+                )}
             </div>
 
             <div className="details">
@@ -55,6 +72,11 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                 <div className="content">
                     <Image src={event.image} alt={event.title} width={800} height={800} 
                     className="banner"/>
+
+                    <section className="flex-col-gap-2">
+                        <h2>Event Description</h2>
+                        <p>{event.description}</p>
+                    </section>
 
                     <section className="flex-col-gap-2">
                         <h2>Overview</h2>
@@ -104,8 +126,8 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                     <p>No similar events found.</p>
                 ) : (
                 <div className="events">
-                        {similarEvents.length > 0 && similarEvents.map((similarEvent: IEvent) => (
-                            <EventCard key={similarEvent.slug} {...similarEvent} />
+                        {similarEvents.length > 0 && similarEvents.map((similarEvent: IEventClient) => (
+                            <EventCard key={similarEvent._id} {...similarEvent} />
                         ))}
                 </div>
                 )}

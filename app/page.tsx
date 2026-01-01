@@ -1,6 +1,6 @@
 import ExploreBtn from "@/components/ExploreBtn"
 import EventCard from "@/components/EventCard"
-import { IEvent } from "@/database";
+import { IEventClient } from "@/types/event";
 import { getAllEvents } from "@/lib/actions/event.actions";
 
 const page = async () => {
@@ -17,11 +17,11 @@ const page = async () => {
         <h3>Featured Events</h3>
 
         <ul className="events list-none">
-          {events && events.length > 0 && events.map((event: IEvent) => (
-            <li key={event.title}>
+          {events.length > 0 ? events.map((event: IEventClient) => (
+            <li key={event._id}>
               <EventCard {...event} />
             </li>
-          ))}
+          )) : <p>No events available.</p>}
         </ul>
       </div>
     </section>

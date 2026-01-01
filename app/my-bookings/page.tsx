@@ -1,21 +1,21 @@
 import EventCard from "@/components/EventCard"
 import { IEventClient } from "@/types/event";
-import { getAllEvents } from "@/lib/actions/event.actions";
+import { getMyBookings } from "@/lib/actions/booking.actions";
 
 const page = async () => {
-  const events = await getAllEvents();
+  const BookedEvents = await getMyBookings();
 
   return (
     <section>
       <div className="mt-3 space-y-7">
-        <h3>Featured Events</h3>
+        <h3>My Bookings</h3>
 
         <ul className="events list-none">
-          {events.length > 0 ? events.map((event: IEventClient) => (
+          {BookedEvents.length > 0 ? BookedEvents.map((event: IEventClient) => (
             <li key={event._id}>
               <EventCard {...event} />
             </li>
-          )) : <p>No events available.</p>}
+          )) : <p>You have not booked any events yet.</p>}
         </ul>
       </div>
     </section>

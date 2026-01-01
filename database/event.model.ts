@@ -2,6 +2,7 @@ import { Schema, model, models, Document } from 'mongoose';
 
 // TypeScript interface for Event document
 export interface IEvent extends Document {
+  creatorEmail: string;
   title: string;
   slug: string;
   description: string;
@@ -22,6 +23,12 @@ export interface IEvent extends Document {
 
 const EventSchema = new Schema<IEvent>(
   {
+    creatorEmail: {
+      type: String,
+      required: [true, 'Creator email is required'],
+      trim: true,
+      index: true
+    },
     title: {
       type: String,
       required: [true, 'Title is required'],
@@ -105,7 +112,7 @@ const EventSchema = new Schema<IEvent>(
     },
   },
   {
-    timestamps: true, // Auto-generate createdAt and updatedAt
+    timestamps: true,
   }
 );
 
