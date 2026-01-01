@@ -9,9 +9,10 @@ import { authOptions } from "@/lib/auth";
 export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.email) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
+
         await connectDB();
         const formData = await req.formData();
         let event;
@@ -57,7 +58,8 @@ export async function POST(req: NextRequest) {
         const createdEvent = await Event.create({
             ...event,
             tags: tags,
-            agenda: agenda
+            agenda: agenda,
+            creatorEmail: session.user.email
         });
 
         revalidateTag("events-list", "max");

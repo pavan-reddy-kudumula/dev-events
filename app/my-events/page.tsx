@@ -1,21 +1,22 @@
 import EventCard from "@/components/EventCard"
 import { IEventClient } from "@/types/event";
-import { getAllEvents } from "@/lib/actions/event.actions";
+import { getMyEvents } from "@/lib/actions/event.actions";
 
 const page = async () => {
-  const events = await getAllEvents();
+  const events = await getMyEvents();
 
   return (
+    
     <section>
       <div className="mt-3 space-y-7">
-        <h3>Featured Events</h3>
+        <h3>My Events</h3>
 
         <ul className="events list-none">
           {events.length > 0 ? events.map((event: IEventClient) => (
             <li key={event._id}>
-              <EventCard {...event} />
+              <EventCard {...event} isEditable={true} />
             </li>
-          )) : <p>No events available.</p>}
+          )) : <p>You have not created any events yet.</p>}
         </ul>
       </div>
     </section>

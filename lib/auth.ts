@@ -12,8 +12,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
-        console.log("ACCOUNT:", account);
-        console.log("PROFILE:", profile);
         token.email = (profile as any).email;
         token.name = (profile as any).name as string | undefined;
         token.picture = (profile as any).picture as string | undefined;
