@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { createEventAction } from "@/lib/actions/event.actions";
 
 type FormFields = {
     title: string;
@@ -72,33 +73,13 @@ const CreateEventPage = () => {
         formData.append("image", imageFile);
 
         try {
-            const response = await fetch("/api/events", {
-                method: "POST",
-                body: formData,
-            });
+            const result = await createEventAction(formData);
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result?.message || "Failed to create event");
+            if (!result.success) {
+                throw new Error(result.error || "Failed to create event");
             }
 
             setStatus({ state: "success", message: "Event created successfully." });
-            setFields({
-                title: "",
-                description: "",
-                overview: "",
-                venue: "",
-                location: "",
-                date: "",
-                time: "",
-                mode: "online",
-                audience: "",
-                organizer: "",
-            });
-            setTagsInput("");
-            setAgendaInput("");
-            setImageFile(null);
         } catch (error) {
             setStatus({
                 state: "error",

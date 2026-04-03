@@ -3,10 +3,35 @@
 import connectDB from "@/lib/mongodb";
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
-import { revalidateTag } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { IEventClient } from "@/types/event";
+
+const getCachedMyBookings = (email: string) =>
+    unstable_cache(
+        async (): Promise<IEventClient[]> => {
+            await connectDB();
+            const bookings = await Booking.find({ email })
+                .populate({ path: "eventId", options: { lean: true } })
+                .lean();
+
+            return bookings
+                .filter((booking) => booking.eventId !== null && booking.eventId !== undefined)
+                .map((booking) => {
+                    const event = booking.eventId;
+
+                    return {
+                        ...event,
+                        _id: event._id.toString(),
+                        createdAt: event.createdAt.toISOString(),
+                        updatedAt: event.updatedAt.toISOString(),
+                    };
+                });
+        },
+        ["my-bookings-cache", email],
+        { tags: [`my-bookings:${email}`] }
+    )();
 
 export const createBooking = async (eventId: string) => {
     try {
@@ -57,7 +82,7 @@ export const createBooking = async (eventId: string) => {
             email,
         });
 
-        revalidateTag("events", "max");
+        revalidateTag(`my-bookings:${email}`, "max");
         
         return { 
             success: true, 
@@ -89,23 +114,7 @@ export const getMyBookings = async (): Promise<IEventClient[]> => {
         if (!session || !session.user?.email) {
             return [];
         }
-        await connectDB();
-        const email = session.user.email;
-        const bookings = await Booking.find({ email }).populate({ path: 'eventId', options: { lean: true } }).lean();
-        const events = bookings
-            .filter(booking => booking.eventId !== null && booking.eventId !== undefined)
-            .map(booking => {
-                const event = booking.eventId;
-
-                return {
-                    ...event,
-                    _id: event._id.toString(),
-                    createdAt: event.createdAt.toISOString(),
-                    updatedAt: event.updatedAt.toISOString(),
-                };
-            });
-
-        return events;
+        return getCachedMyBookings(session.user.email);
     } catch (error) {
         console.error("Error getting my bookings:", error);
         return [];

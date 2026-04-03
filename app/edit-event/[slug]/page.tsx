@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { getEventBySlugForEdit } from "@/lib/actions/event.actions";
+import { getEventBySlugForEdit, updateEventAction } from "@/lib/actions/event.actions";
 
 type FormFields = {
     title: string;
@@ -121,21 +121,17 @@ const EditEventPage = () => {
         }
 
         try {
-            const response = await fetch(`/api/events/${slug}`, {
-                method: "PUT",
-                body: formData,
-            });
+            const result = await updateEventAction(slug, formData);
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result?.message || "Failed to update event");
+            if (!result.success) {
+                throw new Error(result.error || "Failed to update event");
             }
 
             setStatus({ state: "success", message: "Event updated successfully. Redirecting..." });
             
             setTimeout(() => {
-                router.push(`/events/${slug}`);
+                router.replace(`/events/${slug}`);
+                router.refresh();
             }, 1500);
         } catch (error) {
             setStatus({

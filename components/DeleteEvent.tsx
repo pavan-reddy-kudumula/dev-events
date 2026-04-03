@@ -16,7 +16,8 @@ export default function DeleteEvent({ eventId }: { eventId: string }) {
             const result = await deleteEvent(eventId);
             
             if (result.success) {
-                router.push("/my-events");
+                router.replace("/my-events");
+                router.refresh();
             } else {
                 alert(result.error || "Failed to delete event");
                 setIsDeleting(false);

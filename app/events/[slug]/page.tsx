@@ -104,19 +104,19 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                 {/* Right Side - Booking Form */}
                 <aside className="booking">
                     <div className="signup-card">
-                        <h2>Book Your Spot</h2>
+                        <h2>{isCreator ? `Bookings: ${bookings}` : "Book Your Spot"}</h2>
                         {bookings > 0 ? (
                             <p className="text-sm">
-                                Join {bookings} people who have already booked their spot!
+                                {!isCreator && `Join ${bookings} people who have already booked their spot!`}
                             </p>
                         ) : (
                             <p className="text-sm">
-                                Be the first to book your spot!
+                                {isCreator ? "No one has booked this event yet." : "Be the first to book your spot!"}
                             </p>
                         )}
                     </div>
 
-                    <BookEvent eventId={event._id} />
+                    {!isCreator && <BookEvent eventId={event._id} />}
                 </aside>
             </div>
 
